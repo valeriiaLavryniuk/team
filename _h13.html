@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>t13</title></head>
+<body>
+<h1>t13</h1>
+<pre id="out">running...</pre>
+<script>
+var out = document.getElementById('out');
+var widths = [1440, 1024, 768, 480, 390, 360, 320];
+var results = [];
+var idx = 0;
+
+function measure(w) {
+  var fr = document.createElement('iframe');
+  fr.src = '/';
+  fr.style.width = w + 'px';
+  fr.style.height = '900px';
+  fr.style.position = 'absolute'; fr.style.left = '-9999px';
+  document.body.appendChild(fr);
+  setTimeout(function () {
+    var d = fr.contentDocument;
+    var hs = d.querySelectorAll('h1');
+    var sec = null;
+    for (var i=0;i<hs.length;i++){
+      if ((hs[i].textContent||'').trim().indexOf('Ми гарантуємо')===0){
+        sec = hs[i].parentElement; break;
+      }
+    }
+    if (!sec) { results.push(w+': NO SEC'); }
+    else {
+      var sr = sec.getBoundingClientRect();
+      var img = sec.querySelector('img');
+      var ir = img.getBoundingClientRect();
+      var cs = d.defaultView.getComputedStyle(img);
+      results.push(w + ': secH=' + Math.round(sr.height) + ' img=' + Math.round(ir.width) + 'x' + Math.round(ir.height)
+        + ' cssH=' + cs.height + ' maxH=' + cs.maxHeight + ' objFit=' + cs.objectFit);
+    }
+    document.body.removeChild(fr);
+    idx++;
+    if (idx < widths.length) setTimeout(measure, 250, widths[idx]); else out.textContent = results.join('\n');
+  }, 4500);
+}
+measure(widths[0]);
+</script>
+</body>
+</html>

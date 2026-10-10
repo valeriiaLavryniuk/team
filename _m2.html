@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>m2</title></head>
+<body>
+<pre id="out">running...</pre>
+<script>
+var out = document.getElementById('out');
+function measure() {
+  var fr = document.createElement('iframe');
+  fr.src = '/coaches';
+  fr.style.width = '1280px';
+  fr.style.height = '2600px';
+  fr.style.position = 'absolute'; fr.style.left = '-9999px';
+  document.body.appendChild(fr);
+  setTimeout(function () {
+    var d = fr.contentDocument;
+    setTimeout(function () {
+      var out2 = [];
+      var hs = d.querySelectorAll('h1');
+      for (var i=0;i<hs.length;i++){
+        var t = (hs[i].textContent||'').trim();
+        if (t.indexOf('Навроцька') === 0) {
+          var content = hs[i].parentElement;
+          var ps = content.querySelectorAll('p');
+          for (var j=0;j<ps.length;j++){
+            var pt = (ps[j].textContent||'');
+            if (pt.indexOf('Стретчинг') !== -1 || pt.indexOf('Повітря') !== -1){
+              var sched = ps[j];
+              out2.push('p computed: width=' + getComputedStyle(ps[j]).width + ' boxSizing=' + getComputedStyle(ps[j]).boxSizing);
+              var flexDiv = sched.querySelector('div[style*="display: flex"]');
+              if (flexDiv) {
+                out2.push('flexDiv: width=' + getComputedStyle(flexDiv).width + ' maxW=' + getComputedStyle(flexDiv).maxWidth + ' display=' + getComputedStyle(flexDiv).display);
+                var cols = flexDiv.children;
+                for (var k=0;k<cols.length;k++){
+                  var cs = getComputedStyle(cols[k]);
+                  out2.push('col' + k + ': clientW=' + cols[k].clientWidth + ' scrollW=' + cols[k].scrollWidth + ' computedW=' + cs.width + ' flex=' + cs.flex + ' wspace=' + cs.whiteSpace + ' gap?');
+                  var lines = cols[k].querySelectorAll('br');
+                  var divs = cols[k].children;
+                  var textNodes = [];
+                  function walk(n){
+                    for (var z=0;z<n.childNodes.length;z++){
+                      var nd = n.childNodes[z];
+                      if (nd.nodeType===3) { textNodes.push(nd.textContent); }
+                      else if (nd.nodeType===1 && nd.tagName!=='BR'){ walk(nd); }
+                    }
+                  }
+                  walk(cols[k]);
+                  out2.push('   col' + k + ' text frags: ' + JSON.stringify(textNodes));
+                }
+              }
+            }
+          }
+        }
+      }
+      out.textContent = out2.join('\n');
+      document.body.removeChild(fr);
+    }, 300);
+  }, 4500);
+}
+measure();
+</script>
+</body>
+</html>

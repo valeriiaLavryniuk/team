@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>m</title></head>
+<body>
+<pre id="out">running...</pre>
+<script>
+var out = document.getElementById('out');
+function measure() {
+  var fr = document.createElement('iframe');
+  fr.src = '/coaches';
+  fr.style.position = 'absolute'; fr.style.left = '-9999px';
+  fr.style.width = '477px';
+  fr.style.height = '3400px';
+  document.body.appendChild(fr);
+  setTimeout(function () {
+    var d = fr.contentDocument;
+    setTimeout(function () {
+      var out2 = [];
+      out2.push('iframeW=' + fr.clientWidth + ' innerW=' + (d.defaultView ? d.defaultView.innerWidth : '?') + ' docElW=' + d.documentElement.clientWidth);
+      var cols = d.querySelectorAll('div[style*="display: flex"] > div[style*="border-left"]');
+      out2.push('cols=' + cols.length);
+      var brushes = [];
+      var borders = [];
+      for (var i=0;i<cols.length;i++){
+        var cs = getComputedStyle(cols[i]);
+        borders.push(cs.borderLeftWidth + ' sl=' + cs.borderLeftStyle + ' pl=' + cs.paddingLeft + ' ml=' + cs.marginLeft);
+      }
+      out2.push('borders=' + borders.join(' | '));
+      var mq = d.defaultView.matchMedia('(max-width: 477px)');
+      out2.push('mq477=' + mq.matches);
+      var mq2 = d.defaultView.matchMedia('(max-width: 480px)');
+      out2.push('mq480=' + mq2.matches);
+      out.textContent = out2.join('\n');
+      document.body.removeChild(fr);
+    }, 300);
+  }, 4500);
+}
+measure();
+</script>
+</body>
+</html>
